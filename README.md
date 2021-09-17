@@ -6,4 +6,5 @@
 
 ## 95. Real-time FFT spectum visualizer
 Works in browser and shows the spectrum of a microphone input + 100 steps of history.
+Try it here: [live demo](https://sorrge.github.io/fft_visualizer.html)
 ![](95/capture.gif)
