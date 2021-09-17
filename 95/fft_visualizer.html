@@ -1,0 +1,137 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>capture microphone then show time & frequency domain output</title>
+    
+    <script type="text/javascript">
+    
+    var webaudio_tooling_obj = function () {
+    
+        var audioContext = new AudioContext();
+    
+        console.log("audio is starting up ...");
+    
+        var 
+        microphone_stream = null,
+        script_processor_analysis_node = null,
+        analyser_node = null;
+    
+        if (!navigator.getUserMedia)
+            navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    
+        if (navigator.getUserMedia){
+    
+            navigator.getUserMedia({audio:true}, 
+                function(stream) {
+                    start_microphone(stream);
+                },
+                function(e) {
+                    alert('Error capturing audio.');
+                }
+                );
+    
+        } else { alert('getUserMedia not supported in this browser.'); }   
+    
+        function start_microphone(stream){
+            microphone_stream = audioContext.createMediaStreamSource(stream);
+    
+            // --- setup FFT
+    
+            script_processor_analysis_node = audioContext.createScriptProcessor(2048, 1, 1);
+    
+            analyser_node = audioContext.createAnalyser();
+            analyser_node.smoothingTimeConstant = 0;
+            analyser_node.fftSize = 512;
+    
+            microphone_stream.connect(analyser_node);
+    
+            analyser_node.connect(script_processor_analysis_node);
+    
+            var buffer_length = analyser_node.frequencyBinCount;
+    
+            var array_freq_domain = new Uint8Array(buffer_length);
+    
+            console.log("buffer_length " + buffer_length);
+    
+            script_processor_analysis_node.onaudioprocess = function() {
+                // get the average for the first channel
+                analyser_node.getByteFrequencyData(array_freq_domain);
+    
+                // draw the spectrogram
+                if (microphone_stream.playbackState == microphone_stream.PLAYING_STATE) {    
+                    show_some_data(array_freq_domain);
+                }
+            };
+        }
+    
+    }(); //  webaudio_tooling_obj = function()
+
+    </script>
+    
+    </head>
+    <body>
+        <canvas id="myChart" height="256" width="1024" style="border:1px solid #000000;"></canvas>
+        <canvas id="history" height="512" width="1024" style="border:1px solid #000000;"></canvas>
+        <script>
+
+var canvas = document.getElementById('myChart')
+var ctx = canvas.getContext('2d');
+var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+
+var signal_history = [];
+var history_size = 100;
+var canvas_history = document.getElementById('history');
+var ctx_history = canvas_history.getContext('2d');
+
+gradient.addColorStop(1, 'green');
+gradient.addColorStop(0.5, 'yellow');
+gradient.addColorStop(0, 'red');
+
+
+interpolateColor = function interpolateColor(color1, color2, factor) {
+  if (arguments.length < 3) { factor = 0.5; }
+  var result = color1.slice();
+  for (var i=0;i<3;i++) {
+    result[i] = Math.round(result[i] + factor*(color2[i]-color1[i]));
+  }
+  return result;
+};
+
+
+var color_table = [];
+for (var i = 0; i < 128; ++i)
+    color_table.push(interpolateColor([0, 255.0, 0], [255.0, 255.0, 0], i / 127.0));
+
+for (var i = 0; i < 128; ++i)
+    color_table.push(interpolateColor([255.0, 255.0, 0], [255.0, 0, 0], i / 127.0));
+
+
+function show_some_data(given_typed_array) {    
+    var size_buffer = given_typed_array.length;
+
+    signal_history.push(given_typed_array.slice(0));
+    if(signal_history.length > history_size)
+        signal_history.shift();
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = gradient;
+
+    var bar_width = canvas.width / size_buffer;
+
+    for(var i = 0; i < size_buffer; ++i)
+        ctx.fillRect(i * bar_width, canvas.height * (1 - given_typed_array[i] / 256.0), bar_width, canvas.height * given_typed_array[i] / 256.0);
+
+    ctx_history.clearRect(0, 0, canvas_history.width, canvas_history.height);
+    var dot_height = canvas_history.height / history_size;
+    for(var i = 0; i < signal_history.length; ++i)
+        for(var j = 0; j < size_buffer; ++j) {
+            var value = signal_history[signal_history.length - i - 1][j];
+            var color = color_table[value];
+            ctx_history.fillStyle = `rgb(${color[0]}, ${color[1]}, 0)`;
+            ctx_history.fillRect(j * bar_width, dot_height * i, bar_width, dot_height);
+        }
+}
+
+        </script>
+    </body>
+    </html>
+    

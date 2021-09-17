@@ -3,3 +3,7 @@
 
 ## 45. RPN calculator
 ![](45/example.png)
+
+## 95. Real-time FFT spectum visualizer
+Works in browser and shows the spectrum of a microphone input + 100 steps of history.
+![](95/capture.gif)
