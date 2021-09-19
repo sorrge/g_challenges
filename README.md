@@ -5,6 +5,10 @@
 Used Stanza to segment the sentences and output them together with the previous and next sentences.
 ![](5/example.png)
 
+## 24. Simple version control supporting checkout, commit, unlocking, config of number of revisions kept
+A poor man's version control. Per-file versions. File needs to be locked to modify.
+![](24/example.png)
+
 ## 45. RPN calculator
 ![](45/example.png)
 
