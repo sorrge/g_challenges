@@ -9,6 +9,10 @@ Used Stanza to segment the sentences and output them together with the previous 
 A poor man's version control. Per-file versions. File needs to be locked to modify.
 ![](24/example.png)
 
+## 26. Password manager
+Fully functional local password manager featuring: secure password generation with obligatory character class requirements (at least one lowercase, uppercase, digit, special character...), storage in the keyring (passwords not recoverable without login), obfuscation (protects agains automatic scans), master password protection (protects against targeted scans), hidden storages with plausible deniability, encrypted backups.
+![](26/example.png)
+
 ## 45. RPN calculator
 ![](45/example.png)
 
