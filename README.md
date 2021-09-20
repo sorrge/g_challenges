@@ -29,3 +29,8 @@ Works in the terminal.
 Works in browser and shows the spectrum of a microphone input + 100 steps of history.
 Try it here: [live demo](https://sorrge.github.io/fft_visualizer.html)
 ![](95/capture.gif)
+
+## 117. Minesweeper
+Console minesweeper. Mouse controls. Mild automation - puts obvious flags by clicking on numbers
+
+![](117/expert.gif)
