@@ -51,9 +51,10 @@ class Board:
 
     def reveal(self, r, c):
         if self.status != "._.":
-            return
+            return False
 
         if self.revealed[r][c]:
+            changed = False
             if self.neighbors[r][c] > 0:
                 flags_around = 0
                 can_be_revealed = []
@@ -69,12 +70,13 @@ class Board:
                 
                 if flags_around == self.neighbors[r][c]:
                     for r, c in can_be_revealed:
-                        self.reveal(r, c)
+                        changed |= self.reveal(r, c)
                 elif flags_around + len(can_be_revealed) == self.neighbors[r][c]:
                     for r, c in can_be_revealed:
                         self.flag(r, c)
+                        changed = True
 
-            return
+            return changed
 
         self.revealed[r][c] = True
         if self.mines[r][c]:
@@ -114,6 +116,7 @@ class Board:
                                 revealed_empty.append((rr + si, cc + sj))
 
         self.check_win()
+        return True
 
     def check_win(self):
         if self.status == "._.":
@@ -138,6 +141,18 @@ class Board:
 
         self.check_win()
 
+    def recheck_all(self):
+        changed = False
+        for i in range(len(self.mines)):
+            for j in range(len(self.mines[0])):
+                if self.revealed[i][j] and self.neighbors[i][j] != 0:
+                    changed |= self.reveal(i, j)
+
+        return changed
+
+    def auto_reveal(self):
+        while self.recheck_all():
+            pass
                             
 
 board = Board("beginner")
@@ -160,8 +175,10 @@ def game_loop(screen):
             if 0 <= c < len(board.mines[0]) and 0 <= r < len(board.mines):
                 if event.buttons & event.LEFT_CLICK:
                     board.reveal(r, c)
+                    board.auto_reveal()
                 if event.buttons & event.RIGHT_CLICK:
                     board.flag(r, c)
+                    board.auto_reveal()
         elif isinstance(event, KeyboardEvent):
             if chr(event.key_code).lower() == "b":
                 screen.clear()
