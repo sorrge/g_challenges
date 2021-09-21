@@ -113,6 +113,9 @@ class Board:
                             if self.neighbors[rr + si][cc + sj] == 0:
                                 revealed_empty.append((rr + si, cc + sj))
 
+        self.check_win()
+
+    def check_win(self):
         if self.status == "._.":
             all_done = True
             for i in range(len(self.mines)):
@@ -132,6 +135,8 @@ class Board:
         if not self.revealed[r][c]:
             self.mines_left += 1 if self.flags[r][c] else -1
             self.flags[r][c] = not self.flags[r][c]
+
+        self.check_win()
 
                             
 
